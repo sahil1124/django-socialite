@@ -1,0 +1,96 @@
+{%extends 'base.html' %}
+
+{%block css%}
+  .userImage{
+    width:200px;
+    height:200px;
+    border-radius:50%;
+  }
+  .info{
+    padding-top:2%;
+    padding-left:3%;
+  }
+  .pst{
+    width:350px;
+    height:200px;
+    margin-bottom:30px;
+  }
+  hr{
+    border-top:2px solid #000000;
+  }
+
+  #follow{
+    color:blue;
+  }
+
+  #follow:hover{
+    color:white;
+  }
+{%endblock %}
+
+{%block body%}
+  <div class="container my-4">
+    <div class="media">
+      <img src="{{userImg.url}}" class=" align-self-start mr-3 userImage" alt="">
+      <div class="media-body info ml-4">
+        <h2 class="mt-0">{{username}}
+          &nbsp;
+          {% if is_followings and not request.user == profile.user %}
+            <a role="button" name="button" id="follow" class="btn btn-lg btn-outline-primary" href="{% url 'follow' username %}">Unfollow</a>
+          {% elif  not is_followings and not request.user == profile.user%}
+            <a role="button" name="button" id="follow" class="btn btn-lg btn-outline-primary" href="{% url 'follow' username %}">Follow</a>
+          {%endif%}
+
+
+        </h2>
+
+        <p>Follower : {{follower}} &nbsp; Following : {{following}}</p>
+        <p><b>{{bio}}</b></p>
+      </div>
+    </div>
+    <hr>
+
+    <div class="row">
+{%for i in posts%}
+  <!-- here i is list so again for loop -->
+
+        {%for j in i%}
+        <div class="col-md-4 ">
+          <img src="{{j.image.url}}" alt="" class="pst">
+          </div>
+        {%endfor%}
+
+      {%endfor%}
+    </div>
+  </div>
+{%endblock%}
+
+{%block js%}
+<script type="text/javascript">
+
+  $("#follow").click(function(e){
+    e.preventDefault();
+    var href=this.href
+    console.log(href)
+
+    $.ajax({
+      url:href,
+      success:function(response){
+        console.log(response)
+        if(response['following'])
+        {
+          $('#follow').html("Unfollow")
+        }
+        else{
+          $('#follow').html("Follow")
+        }
+      }
+
+    })
+  })
+
+</script>
+
+
+
+{%endblock%}

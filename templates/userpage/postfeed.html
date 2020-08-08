@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{%load static%}
+
+{%block head%}
+
+
+<!-- demo styles -->
+<link rel="stylesheet" href="{% static 'userpage/zuck.js-master/zuck.js-master/demo/style.css' %}">
+
+<!-- lib styles -->
+<link rel="stylesheet" href="{% static 'userpage/zuck.js-master/zuck.js-master/dist/zuck.min.css' %}">
+
+<!-- lib skins -->
+<link rel="stylesheet" href="{% static 'userpage/zuck.js-master/zuck.js-master/dist/skins/snapgram.css' %}">
+
+
+ {%endblock%}
+
+
+
+{%block css%}
+  #post_image{
+    width:460px;
+    height:360px;
+  }
+
+  .post_div{
+    width:550px;
+  }
+
+  .pagination {
+		margin: 10px 0;
+	}
+
+
+
+{%endblock%}
+
+{% block nav_btn1%}
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-outline-primary ml-3" data-toggle="modal" data-target="#exampleModal">
+Post
+</button>
+{%endblock%}
+
+{%block body%}
+
+  <div id="stories" class="storiesWrapper"></div>
+
+{%for i in posts%}
+<div class="container my-4 post_div" id="{{i.id}}">
+  <div class="card ">
+  <h5 class="card-header"><a style="color:black; text-decoration:none;" href="{% url 'userProfile' i.user %}">{{i.user}}</a> <small>{{i.date}}</small></h5>
+  <div class="card-body">
+
+    <p class="card-text">{{i.caption}}</p>
+    {% if i.image %}
+      <img id="post_image" src="{{i.image.url}}" alt="">
+    {%endif%}
+    <hr size="30px">
+
+      <button type="button" class=" btn btn-light mr-3 like" id="{{i.id}}"  name="button">
+          {%if i in liked_post %}
+            <a href="{% url 'like_dislike_post' i.id  %}" style="color:red; text-decoration:none;" id="likebtn{{i.id}}">Liked</a>
+          {%else%}
+            <a href="{% url 'like_dislike_post' i.id  %}" style="color:red; text-decoration:none;" id="likebtn{{i.id}}">Like</a>
+          {%endif%}
+      </button>
+
+
+
+      <a role="button" class=" btn btn-warning mx-2 " href="{% url 'comment' i.id %}" name="button">Comment</a>
+    <button type="button" class=" btn btn-info mx-4 " name="button">Repost</button>
+      {%if request.user == i.user%}
+    <a  class=" btn btn-danger ml-4 delete " href="{% url 'delPost' i.id %}" id="{{i.id}}">Delete</a>
+    {%endif%}
+  </div>
+</div>
+</div>
+
+{%endfor%}
+
+
+{% if posts.has_other_pages%}
+    <ul class="pagination pagination-sm">
+      {% if posts.has_previous%}
+          <li><a href="?page={{ posts.previous_page_number }}">Prev</a></li>
+
+        {% else %}
+          <li class="disabled"></li>
+      {% endif%}
+
+      {% for pages in posts.paginator.page_range %}
+        {% if posts.number == pages%}
+          <li><a href="#">{{pages}}</a></li>
+        {% else %}
+          <li><a href="?page={{pages}}">{{pages}}</a></li>
+        {% endif %}
+      {%  endfor%}
+
+      {% if posts.has_next %}
+          <li><a href="?page={{ posts.next_page_number }}">Next</a></li>
+
+        {% else %}
+          <li class="disabled"></li>
+      {% endif%}
+
+    </ul>
+
+{% endif%}
+
+
+{%endblock%}
+
+
+{% block Modals%}
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form class="" action="/userpage/post" method="POST" enctype="multipart/form-data">
+        {%csrf_token%}
+        <label for="image">Image : </label>
+        <input type="file" name="image" value="">
+
+        <br><br><br>
+
+        <label for="capttext">Captions :</label>
+        <br>
+        <textarea class="ml-4" name="captions" placeholder="Write Something..." id="captions" rows="10" cols="55"></textarea>
+        <hr siz"30>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Let's Show</button>
+
+      </form>
+    </div>
+
+  </div>
+</div>
+</div>
+
+
+
+{%endblock%}
+
+
+{%block js%}
+
+  <script type="text/javascript">
+
+    $(".delete").click(function(e) {
+      var id= this.id;
+      var href=this.href;
+      console.log(href,id)
+      e.preventDefault()
+
+      $.ajax({
+
+        url:href,
+        data:{},
+      });
+
+      $("#"+id).fadeOut(500)
+    });
+
+
+    $(".like").click(function(e) {
+      var id= this.id;
+      var href=$('.like').find('a').attr('href');
+      console.log(href,id)
+      e.preventDefault()
+
+
+
+      $.ajax({
+        url:href,
+        data:{'likeId':id},
+        success:function(response){
+          console.log(response);
+          if(response.liked){
+            $('#likebtn' + id).html("Liked")
+          }
+          else{
+            $('#likebtn' + id ).html("Like")
+          }
+        }
+      });
+
+
+    });
+
+  </script>
+
+  <script src="{% static 'userpage/zuck.js-master/zuck.js-master/dist/zuck.min.js' %}"></script>
+  <script src="{% static 'userpage/zuck.js-master/zuck.js-master/demo/script.js' %}"></script>
+{%endblock%}

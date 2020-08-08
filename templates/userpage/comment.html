@@ -1,0 +1,33 @@
+{%extends 'base.html' %}
+
+{%block body%}
+
+ <div class="card-body">
+        {% if new_comment %}
+        <div class="alert alert-success" role="alert">
+          Your comment is awaiting moderation
+        </div>
+        {% else %}
+        <h3>Leave a comment</h3>
+        <form method="post" style="margin-top: 1.3em;">
+          {{ form.as_p }}
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary  btn-lg">Submit</button>
+        </form>
+        {% endif %}
+      </div>
+
+
+<hr>
+
+<div class="container">
+  {% for comment in comments %}
+        <div class="comments" style="padding: 10px;">
+
+          {{ comment.text | linebreaks }}
+        </div>
+        {% endfor %}
+</div>
+
+
+{%endblock%}

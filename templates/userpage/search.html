@@ -1,0 +1,31 @@
+{%extends 'base.html' %}
+
+{%block css%}
+
+.card-body{
+  display: flex;
+  justify-content: space-between;
+}
+
+{%endblock%}
+
+{%block body%}
+<div class="container my-4 mx-4">
+  {% for i in object_list%}
+  <div class="card">
+    <div class="card-body">
+      <h2>{{i}}</h2>
+      <a href="{% url 'userProfile' i %}"><button type="button" name="button" class="btn btn-primary">View Profile</button></a>
+    </div>
+  </div>
+  <br>
+  {%endfor%}
+
+
+
+
+
+
+</div>
+
+{%endblock%}
